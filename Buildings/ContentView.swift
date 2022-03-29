@@ -143,85 +143,114 @@ struct ContentView: View {
                 .font(.system(.title3, design: .monospaced))
                 .fontWeight(.semibold)
 
-            ScrollView {
-                ScrollViewReader { value in
-                    VStack {
-                        VStack(spacing: 0) {
-                            ForEach(model.blocks) { block in
-                                BlockView(block: block)
-                                    .transition(
-                                        .move(edge: .bottom)
-                                            .combined(
-                                                with: .scale(scale: 0.9, anchor: .bottom)
-                                            )
-                                            .combined(
-                                                with: .opacity
-                                            )
-                                    )
-                                    .id(block.id)
+            ScrollViewReader { value in
+                HStack {
+                    Button {
+                        withAnimation {
+                            var lastBlock = model.blocks.last!
+                            lastBlock.id = UUID()
+                            model.blocks.append(lastBlock)
+                            model.refreshChoices()
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation {
+                                value.scrollTo(0, anchor: .bottom)
                             }
                         }
-
-                        HStack {
-                            Button {
-                                withAnimation {
-                                    var lastBlock = model.blocks.last!
-                                    lastBlock.id = UUID()
-                                    model.blocks.append(lastBlock)
-                                    model.refreshChoices()
-                                    value.scrollTo(0, anchor: .bottom)
-                                }
-                            } label: {
-                                BlockView(block: model.blocks.last!, forceSmallWidth: true)
-                                    .cornerRadius(6)
-                                    .padding(8)
-                                    .background(.green)
-                                    .cornerRadius(8)
-                                    .scaleEffect(x: 1, y: -1)
-                            }
-
-                            Button {
-                                withAnimation {
-                                    model.blocks.append(model.secondChoice)
-                                    model.refreshChoices()
-                                    value.scrollTo(0, anchor: .bottom)
-                                }
-
-                            } label: {
-                                BlockView(block: model.secondChoice, forceSmallWidth: true)
-                                    .cornerRadius(6)
-                                    .padding(8)
-                                    .background(.brown)
-                                    .cornerRadius(8)
-                                    .scaleEffect(x: 1, y: -1)
-                            }
-
-                            Button {
-                                withAnimation {
-                                    model.blocks.append(model.thirdChoice)
-                                    model.refreshChoices()
-                                    value.scrollTo(0, anchor: .bottom)
-                                }
-
-                            } label: {
-                                BlockView(block: model.thirdChoice, forceSmallWidth: true)
-                                    .cornerRadius(6)
-                                    .padding(8)
-                                    .background(.brown)
-                                    .cornerRadius(8)
-                                    .scaleEffect(x: 1, y: -1)
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(UIColor.secondarySystemBackground.color)
-                        .cornerRadius(16)
-                        .padding(24)
+                    } label: {
+                        BlockView(block: model.blocks.last!, forceSmallWidth: true)
+                            .cornerRadius(6)
+                            .padding(8)
+                            .background(.green)
+                            .cornerRadius(8)
+                            .scaleEffect(x: 1, y: -1)
                     }
+
+                    Button {
+                        withAnimation {
+                            model.blocks.append(model.secondChoice)
+                            model.refreshChoices()
+                            value.scrollTo(0, anchor: .bottom)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation {
+                                value.scrollTo(0, anchor: .bottom)
+                            }
+                        }
+                    } label: {
+                        BlockView(block: model.secondChoice, forceSmallWidth: true)
+                            .cornerRadius(6)
+                            .padding(8)
+                            .background(.brown)
+                            .cornerRadius(8)
+                            .scaleEffect(x: 1, y: -1)
+                    }
+
+                    Button {
+                        withAnimation {
+                            model.blocks.append(model.thirdChoice)
+                            model.refreshChoices()
+                            value.scrollTo(0, anchor: .bottom)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation {
+                                value.scrollTo(0, anchor: .bottom)
+                            }
+                        }
+                    } label: {
+                        BlockView(block: model.thirdChoice, forceSmallWidth: true)
+                            .cornerRadius(6)
+                            .padding(8)
+                            .background(.brown)
+                            .cornerRadius(8)
+                            .scaleEffect(x: 1, y: -1)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(UIColor.secondarySystemBackground.color)
+                .cornerRadius(16)
+                .padding(24)
+
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(model.blocks) { block in
+                            BlockView(block: block)
+                                .transition(
+                                    .move(edge: .bottom)
+                                        .combined(
+                                            with: .scale(scale: 0.9, anchor: .bottom)
+                                        )
+                                        .combined(
+                                            with: .opacity
+                                        )
+                                )
+                                .id(block.id)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                     .id(0)
                 }
+                .scaleEffect(x: 1, y: -1)
             }
-            .scaleEffect(x: 1, y: -1)
+        }
+        .background(
+            getBackgroundColor()
+                .color
+                .ignoresSafeArea()
+        )
+    }
+
+    func getBackgroundColor() -> UIColor {
+        switch model.blocks.count {
+        case 0..<5: return .systemBackground
+        case 5..<10: return .systemBlue.withAlphaComponent(0.1)
+        case 10..<20: return .systemGreen.withAlphaComponent(0.1)
+        case 20..<30: return .systemYellow.withAlphaComponent(0.1)
+        case 30..<40: return .systemRed.withAlphaComponent(0.1)
+        case 40..<50: return .systemCyan.withAlphaComponent(0.1)
+        case 50..<60: return .systemMint.withAlphaComponent(0.1)
+        default: return .systemBlue.withAlphaComponent(0.1)
         }
     }
 }
