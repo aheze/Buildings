@@ -35,14 +35,27 @@ enum Pattern {
 }
 
 struct Block: Identifiable {
-    let id = UUID()
+    var id = UUID()
     var pattern: Pattern
     var width: Width
 }
 
 class ViewModel: ObservableObject {
     @Published var blocks = [Block]()
-//    @Published var currentBlocks =
+    @Published var secondChoice: Block!
+    @Published var thirdChoice: Block!
+
+    init() {
+        let baseBlock = generateBlock()
+        blocks.append(baseBlock)
+        secondChoice = generateBlock()
+        thirdChoice = generateBlock()
+    }
+
+    func refreshChoices() {
+        secondChoice = generateBlock()
+        thirdChoice = generateBlock()
+    }
 
     func generateBlock() -> Block {
         let pattern = Pattern.cases.randomElement()!
@@ -98,42 +111,72 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text("Building Blocks")
+                .foregroundColor(.brown)
                 .font(.system(.title, design: .monospaced))
+                .fontWeight(.semibold)
+                .padding(.top, 24)
+
+            Text("Happy Birthday Dad!")
+                .foregroundColor(.brown)
+                .font(.system(.title3, design: .monospaced))
                 .fontWeight(.semibold)
 
             ScrollView {
                 VStack {
-                    HStack {
-                        
-                    }
-                    .padding()
-                    .background(<#T##Background#>)
-                    
                     ForEach(model.blocks) { block in
-                        switch block.pattern {
-                        case .concrete(let concrete):
-                            Color(concrete.color)
-                                .styled(with: block)
-                        case .glass(let glass):
-                            Color(glass.color)
-                                .styled(with: block)
-                        case .dirt(let dirt):
-                            Color(dirt.color)
-                                .styled(with: block)
-                        case .wood(let wood):
-                            Color(wood.color)
-                                .styled(with: block)
-                        case .bars(let bars):
-                            Color(bars.color)
-                                .styled(with: block)
-                        case .brick(let brick):
-                            Color(brick.color)
-                                .styled(with: block)
-                        case .column(let column):
-                            Color(column.color)
-                                .styled(with: block)
+                        BlockView(block: block)
+                    }
+
+                    HStack {
+                        Button {
+                            withAnimation {
+                                var firstBlock = model.blocks.first!
+                                firstBlock.id = UUID()
+                                model.blocks.append(firstBlock)
+                                model.refreshChoices()
+                            }
+                        } label: {
+                            BlockView(block: model.blocks.first!, forceSmallWidth: true)
+                                .cornerRadius(6)
+                                .padding(8)
+                                .background(.green)
+                                .cornerRadius(8)
+                                .scaleEffect(x: 1, y: -1)
+                        }
+
+                        Button {
+                            withAnimation {
+                                model.blocks.append(model.secondChoice)
+                                model.refreshChoices()
+                            }
+                        } label: {
+                            BlockView(block: model.secondChoice, forceSmallWidth: true)
+                                .cornerRadius(6)
+                                .padding(8)
+                                .background(.brown)
+                                .cornerRadius(8)
+                                .scaleEffect(x: 1, y: -1)
+                        }
+
+                        Button {
+                            withAnimation {
+                                model.blocks.append(model.secondChoice)
+                                model.refreshChoices()
+                            }
+                        } label: {
+                            BlockView(block: model.thirdChoice, forceSmallWidth: true)
+                                .cornerRadius(6)
+                                .padding(8)
+                                .background(.brown)
+                                .cornerRadius(8)
+                                .scaleEffect(x: 1, y: -1)
                         }
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(UIColor.secondarySystemBackground.color)
+                    .cornerRadius(16)
+                    .padding(24)
                 }
             }
             .scaleEffect(x: 1, y: -1)
@@ -141,8 +184,34 @@ struct ContentView: View {
     }
 }
 
+struct BlockView: View {
+    let block: Block
+    var forceSmallWidth = false
+    var body: some View {
+        VStack {
+            switch block.pattern {
+            case .concrete(let concrete):
+                Color(concrete.color)
+            case .glass(let glass):
+                Color(glass.color)
+            case .dirt(let dirt):
+                Color(dirt.color)
+            case .wood(let wood):
+                Color(wood.color)
+            case .bars(let bars):
+                Color(bars.color)
+            case .brick(let brick):
+                Color(brick.color)
+            case .column(let column):
+                Color(column.color)
+            }
+        }
+        .styled(with: block, forceSmallWidth: forceSmallWidth)
+    }
+}
+
 extension View {
-    func styled(with block: Block) -> some View {
+    func styled(with block: Block, forceSmallWidth: Bool) -> some View {
         let width: CGFloat
         let height: CGFloat
         switch block.width {
@@ -157,8 +226,11 @@ extension View {
             height = 50
         }
 
-        return self
-            .frame(width: width, height: height)
+        if forceSmallWidth {
+            return frame(width: 100, height: 100)
+        } else {
+            return frame(width: width, height: height)
+        }
     }
 }
 
