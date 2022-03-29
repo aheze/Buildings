@@ -9,19 +9,26 @@
 
 import SwiftUI
 
+struct Dot: Identifiable {
+    let id = UUID()
+    var color: UIColor
+    var length: CGFloat
+    var location: CGPoint
+}
+
 struct Concrete {
     var color = UIColor()
-    var dots = [CGPoint]()
+    var dots = [Dot]()
 }
 
 struct Glass {
     var color = UIColor()
-    var dots = [CGPoint]()
+    var dots = [Dot]()
 }
 
 struct Dirt {
     var color = UIColor()
-    var dots = [CGPoint]()
+    var dots = [Dot]()
 }
 
 struct Wood {
